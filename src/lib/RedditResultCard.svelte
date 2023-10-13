@@ -6,10 +6,10 @@
 </script>
 
 <div
-  class="border-l-4 border-red-600 bg-[--primary] rounded p-5 text-[--text] flex flex-col gap-2 shadow-lg"
+  class="border-l-4 border-red-600 bg-[--primary] rounded p-5 text-[--text] flex flex-col gap-2 shadow-lg h-40"
 >
   <h2 class="text-2xl"><a href={result.newUrl}>{result.title}</a></h2>
-  <p>{result.body}</p>
+  <p class="text-clip overflow-hidden">{result.body}</p>
   <div class="flex gap-2">
     <div class="flex items-center gap-1">
       <div>
