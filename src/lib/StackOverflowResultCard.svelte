@@ -6,7 +6,7 @@
 </script>
 
 <div
-  class="border-l-4 border-orange-600 bg-[--primary] rounded p-2 sm:p-5 text-[--text] flex flex-col gap-2 shadow-lg"
+  class="border-l-4 border-orange-400 bg-[--primary] rounded p-2 sm:p-5 text-[--text] flex flex-col gap-2 shadow-lg"
 >
   <h2 class="text-xl md:text-2xl">
     <a href={result.link}>{result.title}</a>
