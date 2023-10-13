@@ -2,40 +2,18 @@
   import { onMount } from "svelte";
   import ThemeButton from "./lib/DarkModeToggle.svelte";
   import Icon from "@iconify/svelte";
+  import { useRSearch } from "./sources/reddit";
 
   let searchTerm: string = "";
   let timeout: NodeJS.Timeout;
 
-  let isLoading = false;
-  let error: any = null;
-  let searchResults: IRedditSearchResult[] = [];
-
-  interface IRedditSearchResult {
-    title?: string;
-    body?: string;
-    upvotes: number;
-    comments: number;
-    subreddit: string;
-    oldUrl: string;
-    newUrl: string;
-  }
+  const { redData, redSearch } = useRSearch();
 
   $: {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       if (searchTerm !== "") {
-        try {
-          isLoading = true;
-          const res = await fetch(
-            `https://rsearch.luimu.dev/search?q=${searchTerm}`
-          );
-          searchResults = await res.json();
-          error = null;
-        } catch (err: any) {
-          error = err;
-        } finally {
-          isLoading = false;
-        }
+        redSearch(searchTerm);
       }
     }, 1000);
   }
@@ -45,6 +23,8 @@
       clearTimeout(timeout);
     };
   });
+
+  $: redData && console.log($redData);
 </script>
 
 <main class="bg-[--background] min-h-screen h-full transition-all">
@@ -61,12 +41,12 @@
     <ThemeButton />
   </section>
   <section class="flex flex-col gap-2 p-5">
-    {#if isLoading}
+    {#if $redData.isLoading}
       <Icon icon="eos-icons:loading" class="text-4xl m-auto text-[--accent]" />
-    {:else if error}
-      <p class="text-[--text]">Error: {error.message}</p>
-    {:else if searchResults}
-      {#each searchResults as result}
+    {:else if $redData.error}
+      <p class="text-[--text]">Error: {$redData.error.message}</p>
+    {:else if $redData.searchResults}
+      {#each $redData.searchResults as result}
         <div
           class="bg-[--primary] rounded p-5 text-[--text] flex flex-col gap-2 shadow-lg"
         >
