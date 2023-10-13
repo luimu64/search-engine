@@ -14,7 +14,7 @@ export const useSOSearch = () => {
         return { ...prev, isLoading: true };
       });
       const res = await fetch(
-        `https://api.stackexchange.com/2.3/search?order=desc&sort=activity&intitle=${searchTerm}&site=stackoverflow`
+        `https://api.stackexchange.com/2.3/search?order=desc&sort=relevance&intitle=${searchTerm}&site=stackoverflow`
       );
       let searchResults = await res.json();
       searchStore.update((prev) => {
