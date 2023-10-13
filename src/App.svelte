@@ -72,12 +72,12 @@
       Zap
     </h1>
     <input
-      class="text-[--text] bg-[--secondary] h-10 w-11/12 sm:w-1/2 rounded-full p-4 !outline-none border-none focus:ring-[--accent] focus:ring-2 select:bg-[--secondary]"
+      class="text-[--text] bg-[--secondary] h-10 w-11/12 sm:w-1/2 lg:max-w-5xl rounded-full p-4 !outline-none border-none focus:ring-[--accent] focus:ring-2 select:bg-[--secondary]"
       bind:value={searchTerm}
     />
     <ThemeButton />
   </section>
-  <section class="flex flex-col gap-2 p-5">
+  <section class="flex flex-col gap-2 p-1 lg:max-w-5xl sm:p-5 m-auto">
     {#if isLoading}
       <Icon icon="eos-icons:loading" class="text-4xl m-auto text-[--accent]" />
     {:else if error}

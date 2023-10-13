@@ -6,9 +6,9 @@
 </script>
 
 <div
-  class="border-l-4 border-slate-600 bg-[--primary] rounded p-5 text-[--text] flex flex-col gap-2 shadow-lg"
+  class="border-l-4 border-slate-600 bg-[--primary] rounded p-2 sm:p-5 text-[--text] flex flex-col gap-2 shadow-lg"
 >
-  <h2 class="text-2xl">
+  <h2 class="text-xl md:text-2xl">
     <a href={result.html_url}>{result.title}</a>
   </h2>
   <p class="text-clip overflow-hidden">
