@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ThemeButton from "./lib/DarkModeToggle.svelte";
+  import Icon from "@iconify/svelte";
 
   let searchTerm: string = "";
   let timeout: NodeJS.Timeout;
@@ -61,9 +62,9 @@
   </section>
   <section class="flex flex-col gap-2 p-5">
     {#if isLoading}
-      <p class="text-[--text]">Loading...</p>
+      <Icon icon="eos-icons:loading" class="text-4xl m-auto text-[--accent]" />
     {:else if error}
-      <p>Error: {error.message}</p>
+      <p class="text-[--text]">Error: {error.message}</p>
     {:else if searchResults}
       {#each searchResults as result}
         <div
