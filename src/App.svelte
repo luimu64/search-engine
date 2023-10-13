@@ -1,17 +1,22 @@
 <script lang="ts">
   ///<reference path="./sources/reddit.d.ts" />
   ///<reference path="./sources/stackOverflow.d.ts" />
+  ///<reference path="./sources/github.d.ts" />
+
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
-  import { useRSearch } from "./sources/reddit";
-  import { useSOSearch } from "./sources/stackOverflow";
+  import { useReSearch } from "./sources/reddit";
+  import { useSoSearch } from "./sources/stackOverflow";
+  import { useGiSearch } from "./sources/github";
   import ThemeButton from "./lib/DarkModeToggle.svelte";
   import RedditResultCard from "./lib/RedditResultCard.svelte";
   import StackOverflowResultCard from "./lib/StackOverflowResultCard.svelte";
+  import GithubResultCard from "./lib/GithubResultCard.svelte";
 
   interface IAggregatedSearchResults {
-    reddit: IRedditSearchResult[];
     stackOverflow: IStackOverflowSearchResult[];
+    github: IGithubSearchResult[];
+    reddit: IRedditSearchResult[];
   }
 
   let searchTerm: string = "";
@@ -19,19 +24,25 @@
   let aggregatedSearchResults: IAggregatedSearchResults = {
     reddit: [],
     stackOverflow: [],
+    github: [],
   };
   let isLoading: boolean = false;
   let error: any = null;
 
-  const { redData, redSearch } = useRSearch();
-  const { soData, soSearch } = useSOSearch();
+  const { redData, redSearch } = useReSearch();
+  const { soData, soSearch } = useSoSearch();
+  const { gitData, gitSearch } = useGiSearch();
 
   $: {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       if (searchTerm !== "") {
         isLoading = true;
-        Promise.all([redSearch(searchTerm), soSearch(searchTerm)])
+        Promise.all([
+          redSearch(searchTerm),
+          soSearch(searchTerm),
+          gitSearch(searchTerm),
+        ])
           .then(() => {
             isLoading = false;
           })
@@ -48,8 +59,9 @@
 
   $: aggregatedSearchResults && console.log(aggregatedSearchResults);
 
-  $: aggregatedSearchResults.reddit = $redData.searchResults;
-  $: aggregatedSearchResults.stackOverflow = $soData.searchResults;
+  $: aggregatedSearchResults.reddit = $redData.searchResults.slice(0, 10);
+  $: aggregatedSearchResults.stackOverflow = $soData.searchResults.slice(0, 10);
+  $: aggregatedSearchResults.github = $gitData.searchResults.slice(0, 10);
 </script>
 
 <main class="bg-[--background] min-h-screen h-full transition-all">
@@ -72,10 +84,12 @@
       <p class="text-[--text]">Error: {error.message}</p>
     {:else if aggregatedSearchResults}
       {#each Object.values(aggregatedSearchResults).flat() as result}
-        {#if result.subreddit}
-          <RedditResultCard {result} />
-        {:else}
+        {#if result.link}
           <StackOverflowResultCard {result} />
+        {:else if result.body !== "" && result.subreddit}
+          <RedditResultCard {result} />
+        {:else if result.repository_url}
+          <GithubResultCard {result} />
         {/if}
       {/each}
     {/if}

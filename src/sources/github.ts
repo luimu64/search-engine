@@ -1,24 +1,24 @@
-///<reference path="./reddit.d.ts" />
+///<reference path="./github.d.ts" />
 import { writable } from "svelte/store";
 
-export const useReSearch = () => {
-  const searchStore = writable<IRedSearchStore>({
+export const useGiSearch = () => {
+  const searchStore = writable<IGithubSearchStore>({
     searchResults: [],
     isLoading: false,
     error: null,
   });
 
-  const redSearch = async (searchTerm: string) => {
+  const gitSearch = async (searchTerm: string) => {
     try {
       searchStore.update((prev) => {
         return { ...prev, isLoading: true };
       });
       const res = await fetch(
-        `https://rsearch.luimu.dev/search?q=${searchTerm}`
+        `https://api.github.com/search/issues?q=${searchTerm}`
       );
       let searchResults = await res.json();
       searchStore.update((prev) => {
-        return { ...prev, searchResults: searchResults, error: null };
+        return { ...prev, searchResults: searchResults.items, error: null };
       });
     } catch (err: any) {
       searchStore.update((prev) => {
@@ -31,5 +31,5 @@ export const useReSearch = () => {
     }
   };
 
-  return { redData: { ...searchStore }, redSearch };
+  return { gitData: { ...searchStore }, gitSearch };
 };

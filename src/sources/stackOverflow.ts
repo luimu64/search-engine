@@ -1,7 +1,7 @@
 ///<reference path="./stackOverflow.d.ts" />
 import { writable } from "svelte/store";
 
-export const useSOSearch = () => {
+export const useSoSearch = () => {
   const searchStore = writable<ISOSearchStore>({
     searchResults: [],
     isLoading: false,
