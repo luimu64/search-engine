@@ -1,19 +1,41 @@
 <script lang="ts">
+  ///<reference path="./sources/reddit.d.ts" />
+  ///<reference path="./sources/stackOverflow.d.ts" />
   import { onMount } from "svelte";
-  import ThemeButton from "./lib/DarkModeToggle.svelte";
   import Icon from "@iconify/svelte";
   import { useRSearch } from "./sources/reddit";
+  import { useSOSearch } from "./sources/stackOverflow";
+  import ThemeButton from "./lib/DarkModeToggle.svelte";
+  import RedditResultCard from "./lib/RedditResultCard.svelte";
+  import StackOverflowResultCard from "./lib/StackOverflowResultCard.svelte";
+
+  interface IAggregatedSearchResults {
+    reddit: IRedditSearchResult[];
+    stackOverflow: IStackOverflowSearchResult[];
+  }
 
   let searchTerm: string = "";
   let timeout: NodeJS.Timeout;
+  let aggregatedSearchResults: IAggregatedSearchResults = {
+    reddit: [],
+    stackOverflow: [],
+  };
+  let isLoading: boolean = false;
+  let error: any = null;
 
   const { redData, redSearch } = useRSearch();
+  const { soData, soSearch } = useSOSearch();
 
   $: {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       if (searchTerm !== "") {
-        redSearch(searchTerm);
+        isLoading = true;
+        Promise.all([redSearch(searchTerm), soSearch(searchTerm)])
+          .then(() => {
+            isLoading = false;
+          })
+          .catch((e) => (error = e));
       }
     }, 1000);
   }
@@ -24,7 +46,10 @@
     };
   });
 
-  $: redData && console.log($redData);
+  $: aggregatedSearchResults && console.log(aggregatedSearchResults);
+
+  $: aggregatedSearchResults.reddit = $redData.searchResults;
+  $: aggregatedSearchResults.stackOverflow = $soData.searchResults;
 </script>
 
 <main class="bg-[--background] min-h-screen h-full transition-all">
@@ -41,22 +66,17 @@
     <ThemeButton />
   </section>
   <section class="flex flex-col gap-2 p-5">
-    {#if $redData.isLoading}
+    {#if isLoading}
       <Icon icon="eos-icons:loading" class="text-4xl m-auto text-[--accent]" />
-    {:else if $redData.error}
-      <p class="text-[--text]">Error: {$redData.error.message}</p>
-    {:else if $redData.searchResults}
-      {#each $redData.searchResults as result}
-        <div
-          class="bg-[--primary] rounded p-5 text-[--text] flex flex-col gap-2 shadow-lg"
-        >
-          <h2 class="text-2xl"><a href={result.newUrl}>{result.title}</a></h2>
-          <p>{result.body}</p>
-          <div class="flex gap-2">
-            <div>Comments: {result.comments}</div>
-            <div>Upvotes: {result.upvotes}</div>
-          </div>
-        </div>
+    {:else if error}
+      <p class="text-[--text]">Error: {error.message}</p>
+    {:else if aggregatedSearchResults}
+      {#each Object.values(aggregatedSearchResults).flat() as result}
+        {#if result.subreddit}
+          <RedditResultCard {result} />
+        {:else}
+          <StackOverflowResultCard {result} />
+        {/if}
       {/each}
     {/if}
   </section>
